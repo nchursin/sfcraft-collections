@@ -1,6 +1,7 @@
 public with sharing class sfcraft_Collection {
     private enum CollectionType {
-        CollectionList, CollectionMap
+        CollectionList,
+        CollectionMap
     }
 
     private List<SObject> sobjectList;
@@ -11,9 +12,9 @@ public with sharing class sfcraft_Collection {
         return new sfcraft_Collection(sobjectList, sobjectList.getSObjectType());
     }
 
-    public static sfcraft_Collection fromMap(Map<Id, SObject> sobjectMap){
-		return new sfcraft_Collection(sobjectMap, sobjectMap.getSObjectType());
-	} 
+    public static sfcraft_Collection fromMap(Map<Id, SObject> sobjectMap) {
+        return new sfcraft_Collection(sobjectMap, sobjectMap.getSObjectType());
+    }
 
     private sfcraft_Collection(SObjectType sobjType) {
         this.sobjType = sobjType;
@@ -39,31 +40,43 @@ public with sharing class sfcraft_Collection {
         return this.sobjectList;
     }
 
-	public Map<Id, SObject> getMap() {
+    public Map<Id, SObject> getMap() {
         return this.sobjectMap;
-	} 
+    }
 
-	public Map<Object, SObject> mapByFieldUnique(String fieldName) {
+    public Map<Object, SObject> mapByFieldUnique(String fieldName) {
         Map<Object, SObject> result = this.createEmptySObjectMapWithObjectKeys();
         for (SObject record : this.sobjectList) {
             Object fieldValue = record.get(fieldName);
             result.put(fieldValue, record);
         }
         return result;
-	}
+    }
 
-	public Map<Object, List<SObject>> mapByField(String fieldName){
-        String mapType = 'Map<Object, List<' + this.sobjType + '>>';
-        Map<Object, List<SObject>> result = (Map<Object, List<SObject>>) Type.forName(mapType).newInstance();
+    public Map<Object, List<SObject>> mapByField(String fieldName) {
+        Map<Object, List<SObject>> result = (Map<Object, List<SObject>>) createMapObjectTo(
+            'List<' +
+            this.sobjType +
+            '>'
+        );
         for (SObject record : this.sobjectList) {
             Object fieldValue = record.get(fieldName);
-            if (!result.containsKey(fieldValue)) {
-                result.put(fieldValue, this.createEmptySObjectList());
-            }
-            result.get(fieldValue).add(record);
+            List<SObject> listToAddTo = (List<SObject>) this.getOrPopulateDefault(
+                result,
+                fieldValue,
+                createEmptySObjectList()
+            );
+            listToAddTo.add(record);
         }
         return result;
-	} 
+    }
+
+    private Object getOrPopulateDefault(Map<Object, Object> mapToSearch, Object key, Object defaultValue) {
+        if (!mapToSearch.containsKey(key)) {
+            mapToSearch.put(key, defaultValue);
+        }
+        return mapToSearch.get(key);
+    }
 
     private Map<Id, SObject> createEmptyIdSObjectMap() {
         String mapType = 'Map<Id, ' + this.sobjType + '>';
@@ -76,7 +89,11 @@ public with sharing class sfcraft_Collection {
     }
 
     private Map<Object, SObject> createEmptySObjectMapWithObjectKeys() {
-        String mapType = 'Map<Object, ' + this.sobjType + '>';
-        return (Map<Object, SObject>) Type.forName(mapType).newInstance();
+        return (Map<Object, SObject>) createMapObjectTo(String.valueOf(this.sobjType));
+    }
+
+    private Map<Object, Object> createMapObjectTo(String valueType) {
+        String mapType = 'Map<Object, ' + valueType + '>';
+        return (Map<Object, Object>) Type.forName(mapType).newInstance();
     }
 }
