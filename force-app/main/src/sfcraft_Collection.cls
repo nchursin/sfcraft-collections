@@ -71,6 +71,14 @@ public with sharing class sfcraft_Collection {
         return result;
     }
 
+    public Map<Object, List<SObject>> mapByField(SObjectField field) {
+        return this.mapByField(field.getDescribe().getName());
+    }
+
+    public Map<Object, SObject> mapByFieldUnique(SObjectField field) {
+        return this.mapByFieldUnique(field.getDescribe().getName());
+    }
+
     private Object getOrPopulateDefault(Map<Object, Object> mapToSearch, Object key, Object defaultValue) {
         if (!mapToSearch.containsKey(key)) {
             mapToSearch.put(key, defaultValue);
