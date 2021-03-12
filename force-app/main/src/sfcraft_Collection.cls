@@ -44,6 +44,10 @@ public with sharing class sfcraft_Collection {
         return this.sobjectMap;
     }
 
+    public Integer size() {
+        return this.sobjectList.size();
+    }
+
     public Map<Object, SObject> mapByFieldUnique(String fieldName) {
         this.argumentRequired('Field is required to map', fieldName);
         Map<Object, SObject> result = this.createEmptySObjectMapWithObjectKeys();

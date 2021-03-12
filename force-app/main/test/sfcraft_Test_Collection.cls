@@ -11,6 +11,8 @@ private with sharing class sfcraft_Test_Collection {
     // TODO: From set
     // DONE: from list
     // DONE: from map
+    // DONE: from list(null) throw IAE
+    // DONE: from map(null) throw IAE
     // TODO: To set
     // DONE: to list
     // DONE: to map
@@ -46,11 +48,11 @@ private with sharing class sfcraft_Test_Collection {
         System.assertEquals(collectionList, actualList, 'Generated list is different from expected');
     }
 
-    // @IsTest
-    // private static void calculatesSize() {
-    //     collectionUnderTest = sfcraft_Collection.fromList(collectionList);
-    //     System.assertEquals(collectionList.size(), collectionUnderTest.size(), 'Size is different from expected');
-    // }
+    @IsTest
+    private static void calculatesSize() {
+        collectionUnderTest = sfcraft_Collection.fromList(collectionList);
+        System.assertEquals(collectionList.size(), collectionUnderTest.size(), 'Size is different from expected');
+    }
 
     @IsTest
     private static void canCreateCollectionFromMap() {
