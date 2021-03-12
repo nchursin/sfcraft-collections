@@ -22,7 +22,8 @@ public with sharing class sfcraft_Collection {
 
     private sfcraft_Collection(List<SObject> sobjectList, SObjectType sobjType) {
         this(sobjType);
-        this.sobjectList = sobjectList;
+        this.sobjectList = this.createEmptySObjectList();
+        this.sobjectList.addAll(sobjectList);
 
         this.sobjectMap = this.createEmptyIdSObjectMap();
         this.sobjectMap.putAll(sobjectList);
@@ -30,7 +31,8 @@ public with sharing class sfcraft_Collection {
 
     private sfcraft_Collection(Map<Id, SObject> sobjectMap, SObjectType sobjType) {
         this(sobjType);
-        this.sobjectMap = sobjectMap;
+        this.sobjectMap = this.createEmptyIdSObjectMap();
+        this.sobjectMap.putAll(sobjectMap);
 
         this.sobjectList = this.createEmptySObjectList();
         this.sobjectList.addAll(sobjectMap.values());

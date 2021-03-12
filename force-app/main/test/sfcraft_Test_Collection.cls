@@ -7,7 +7,7 @@ private with sharing class sfcraft_Test_Collection {
     // DONE: Map by field unique (sobjectField)
     // DONE: Map by field unique (null) - illegal argument exception
     // DONE: Total size
-    // TODO: Count unique
+    // DONE: Count unique
     // TODO: From set
     // DONE: from list
     // DONE: from map
@@ -57,9 +57,29 @@ private with sharing class sfcraft_Test_Collection {
     }
 
     @IsTest
+    private static void collectionHasItsOwnInstancesOfList() {
+        List<Account> accList = new List<Account>{ collectionList.get(0) };
+        Integer expectedSize = accList.size();
+        collectionUnderTest = sfcraft_Collection.fromList(accList);
+        accList.add(accList.get(0));
+        System.assertEquals(expectedSize, collectionUnderTest.size(), 'Collection is changed');
+        System.assertNotEquals(accList, collectionUnderTest.getList(), 'Collection is changed');
+    }
+
+    @IsTest
+    private static void collectionHasItsOwnInstancesOfMap() {
+        Map<Id, Account> accMap = new Map<Id, Account>{ collectionList.get(0).Id => collectionList.get(0) };
+        Integer expectedSize = accMap.size();
+        collectionUnderTest = sfcraft_Collection.fromMap(accMap);
+        accMap.put(collectionList.get(1).Id, collectionList.get(1));
+        System.assertEquals(expectedSize, collectionUnderTest.size(), 'Collection is changed');
+        System.assertNotEquals(accMap, collectionUnderTest.getMap(), 'Collection is changed');
+    }
+
+    @IsTest
     private static void canCountUnique() {
-        collectionUnderTest = sfcraft_Collection.fromList(collectionList);
         collectionList.add(collectionList[0]);
+        collectionUnderTest = sfcraft_Collection.fromList(collectionList);
         System.assertEquals(
             collectionList.size() - 1,
             collectionUnderTest.countUnique(),
