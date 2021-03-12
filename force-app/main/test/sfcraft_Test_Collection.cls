@@ -3,11 +3,11 @@ private with sharing class sfcraft_Test_Collection {
     private static sfcraft_Collection collectionUnderTest;
     // DONE: Map by field (string)
     // DONE: Map by field unique (string)
-    // TODO: Map by field (sobjectField)
-    // TODO: Map by field unique (sobjectField)
-    // TODO: Map by field unique (null) - illegal argument exception
-    // TODO: Count unique
+    // DONE: Map by field (sobjectField)
+    // DONE: Map by field unique (sobjectField)
+    // DONE: Map by field unique (null) - illegal argument exception
     // TODO: Total size
+    // TODO: Count unique
     // TODO: From set
     // DONE: from list
     // DONE: from map
@@ -45,6 +45,12 @@ private with sharing class sfcraft_Test_Collection {
         List<Account> actualList = (List<Account>) collectionUnderTest.getList();
         System.assertEquals(collectionList, actualList, 'Generated list is different from expected');
     }
+
+    // @IsTest
+    // private static void calculatesSize() {
+    //     collectionUnderTest = sfcraft_Collection.fromList(collectionList);
+    //     System.assertEquals(collectionList.size(), collectionUnderTest.size(), 'Size is different from expected');
+    // }
 
     @IsTest
     private static void canCreateCollectionFromMap() {
@@ -101,5 +107,43 @@ private with sharing class sfcraft_Test_Collection {
         );
         System.assertEquals(1, mappedByNumber.size(), 'Result size is different from expected');
         System.assertEquals(collectionList, mappedByNumber.get(1000), 'Wrong mapping for numbers');
+    }
+
+    @IsTest
+    private static void mapByFieldMethodsThrowIllegalArgumentException() {
+        String fieldName = null;
+        SObjectField field = null;
+        try {
+            collectionUnderTest.mapByField(fieldName);
+            expectException(IllegalArgumentException.class);
+        } catch (IllegalArgumentException ex) {
+            expectException('Field is required to map', ex);
+        }
+        try {
+            collectionUnderTest.mapByField(field);
+            expectException(IllegalArgumentException.class);
+        } catch (IllegalArgumentException ex) {
+            expectException('Field is required to map', ex);
+        }
+        try {
+            collectionUnderTest.mapByFieldUnique(fieldName);
+            expectException(IllegalArgumentException.class);
+        } catch (IllegalArgumentException ex) {
+            expectException('Field is required to map', ex);
+        }
+        try {
+            collectionUnderTest.mapByFieldUnique(field);
+            expectException(IllegalArgumentException.class);
+        } catch (IllegalArgumentException ex) {
+            expectException('Field is required to map', ex);
+        }
+    }
+
+    private static void expectException(Type exceptionType) {
+        System.assert(false, exceptionType.getName() + ' expected');
+    }
+
+    private static void expectException(String message, Exception ex) {
+        System.assertEquals(message, ex.getMessage(), 'Exception message is different from expected');
     }
 }

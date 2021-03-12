@@ -45,6 +45,7 @@ public with sharing class sfcraft_Collection {
     }
 
     public Map<Object, SObject> mapByFieldUnique(String fieldName) {
+        this.argumentRequired('Field is required to map', fieldName);
         Map<Object, SObject> result = this.createEmptySObjectMapWithObjectKeys();
         for (SObject record : this.sobjectList) {
             Object fieldValue = record.get(fieldName);
@@ -54,6 +55,7 @@ public with sharing class sfcraft_Collection {
     }
 
     public Map<Object, List<SObject>> mapByField(String fieldName) {
+        this.argumentRequired('Field is required to map', fieldName);
         Map<Object, List<SObject>> result = (Map<Object, List<SObject>>) createMapObjectTo(
             'List<' +
             this.sobjType +
@@ -72,10 +74,12 @@ public with sharing class sfcraft_Collection {
     }
 
     public Map<Object, List<SObject>> mapByField(SObjectField field) {
+        this.argumentRequired('Field is required to map', field);
         return this.mapByField(field.getDescribe().getName());
     }
 
     public Map<Object, SObject> mapByFieldUnique(SObjectField field) {
+        this.argumentRequired('Field is required to map', field);
         return this.mapByFieldUnique(field.getDescribe().getName());
     }
 
@@ -103,5 +107,11 @@ public with sharing class sfcraft_Collection {
     private Map<Object, Object> createMapObjectTo(String valueType) {
         String mapType = 'Map<Object, ' + valueType + '>';
         return (Map<Object, Object>) Type.forName(mapType).newInstance();
+    }
+
+    private void argumentRequired(String message, Object value) {
+        if (null == value) {
+            throw new IllegalArgumentException(message);
+        }
     }
 }
