@@ -1,4 +1,8 @@
 public with sharing class sfcraft_Collection {
+    private enum CollectionType {
+        CollectionList, CollectionMap
+    }
+
     private List<SObject> sobjectList;
     private Map<Id, SObject> sobjectMap;
     private SObjectType sobjType;
@@ -11,19 +15,23 @@ public with sharing class sfcraft_Collection {
 		return new sfcraft_Collection(sobjectMap, sobjectMap.getSObjectType());
 	} 
 
-    private sfcraft_Collection(List<SObject> sobjectList, SObjectType sobjType) {
+    private sfcraft_Collection(SObjectType sobjType) {
         this.sobjType = sobjType;
+    }
+
+    private sfcraft_Collection(List<SObject> sobjectList, SObjectType sobjType) {
+        this(sobjType);
         this.sobjectList = sobjectList;
 
-        this.sobjectMap = this.getEmptyMapOfSObjectType(sobjType);
+        this.sobjectMap = this.createEmptyMap();
         this.sobjectMap.putAll(sobjectList);
     }
 
     private sfcraft_Collection(Map<Id, SObject> sobjectMap, SObjectType sobjType) {
-        this.sobjType = sobjType;
+        this(sobjType);
         this.sobjectMap = sobjectMap;
 
-        this.sobjectList = getEmptyListOfSObjectType(sobjType);
+        this.sobjectList = this.createEmptyList();
         this.sobjectList.addAll(sobjectMap.values());
     }
 
@@ -36,16 +44,16 @@ public with sharing class sfcraft_Collection {
 	} 
 
 	// public Map<String, SObject> mapByFieldUnique(String fieldName) {
-    //     return getEmptyListOfSObjectType(this.sobjType);
+    //     return this.createEmptyMap();
 	// }
 
-    private Map<Id, SObject> getEmptyMapOfSObjectType(SObjectType sobjType) {
-        String mapType = 'Map<Id, ' + sobjType + '>';
+    private Map<Id, SObject> createEmptyMap() {
+        String mapType = 'Map<Id, ' + this.sobjType + '>';
         return (Map<Id, SObject>)Type.forName(mapType).newInstance();
     }
 
-    private List<SObject> getEmptyListOfSObjectType(SObjectType sobjType) {
-        String listType = 'List<' + sobjType + '>';
+    private List<SObject> createEmptyList() {
+        String listType = 'List<' + this.sobjType + '>';
         return (List<SObject>)Type.forName(listType).newInstance();
     }
 }
