@@ -1,10 +1,11 @@
 @isTest
 private with sharing class sfcraft_Test_Collection {
     private static sfcraft_Collection collectionUnderTest;
-    // TODO: Map by field (string)
-    // TODO: Map by field unique (string)
+    // DONE: Map by field (string)
+    // DONE: Map by field unique (string)
     // TODO: Map by field (sobjectField)
     // TODO: Map by field unique (sobjectField)
+    // TODO: Map by field unique (null) - illegal argument exception
     // TODO: Count unique
     // TODO: Total size
     // TODO: From set
@@ -29,8 +30,8 @@ private with sharing class sfcraft_Test_Collection {
     // TODO: removeAll
 
     private static List<Account> collectionList = new List<Account> {
-        new Account(Id = '001000000000001', Name = 'acc1'),
-        new Account(Id = '001000000000002', Name = 'acc2')
+        new Account(Id = '001000000000001', Name = 'acc1', NumberOfEmployees = 1000),
+        new Account(Id = '001000000000002', Name = 'acc2', NumberOfEmployees = 1000)
     };
     private static Map<Id, Account> collectionMap = new Map<Id, Account>(collectionList);
 
@@ -66,12 +67,19 @@ private with sharing class sfcraft_Test_Collection {
         System.assertEquals(collectionList, actualMap, 'Generated list is different from expected');
     }
 
-    // @IsTest
-    // private static void canMapByFieldUnique() {
-    //     Map<String, Account> mappedByName = (Map<String, Account>) collectionUnderTest.mapByFieldUnique('Name');
-    //     System.assertEquals(collectionList.size(), mappedByName.size(), 'Reaulst size is different from expected');
-    //     for (Account acc : collectionList) {
-    //         System.assertEquals(acc, mappedByName.get(acc.Name), 'Wrong account mapped for name: ' + acc.Name);
-    //     }
-    // }
+    @IsTest
+    private static void canMapByFieldUnique() {
+        Map<Object, Account> mappedByName = (Map<Object, Account>) collectionUnderTest.mapByFieldUnique('Name');
+        System.assertEquals(collectionList.size(), mappedByName.size(), 'Result size is different from expected');
+        for (Account acc : collectionList) {
+            System.assertEquals(acc, mappedByName.get(acc.Name), 'Wrong account mapped for name: ' + acc.Name);
+        }
+    }
+
+    @IsTest
+    private static void canMapByField() {
+        Map<Object, List<Account>> mappedByNumber = (Map<Object, List<Account>>) collectionUnderTest.mapByField('NumberOfEmployees');
+        System.assertEquals(1, mappedByNumber.size(), 'Result size is different from expected');
+        System.assertEquals(collectionList, mappedByNumber.get(1000), 'Wrong mapping for numbers');
+    }
 }
