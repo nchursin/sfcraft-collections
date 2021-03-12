@@ -16,9 +16,9 @@ private with sharing class sfcraft_Test_Collection {
     // TODO: To set
     // DONE: to list
     // DONE: to map
-    // TODO: Get set of field values
+    // DONE: Get set of field values
     // TODO: Generic type (SObject without concrete type)
-    // TODO: Empty collection
+    // TODO: create empty collection
     // TODO: add
     // TODO: remove
     // TODO: addAll(List)
@@ -36,8 +36,8 @@ private with sharing class sfcraft_Test_Collection {
 
     static {
         collectionList = new List<Account>{
-            new Account(Id = '001000000000001', Name = 'acc1', NumberOfEmployees = 1000),
-            new Account(Id = '001000000000002', Name = 'acc2', NumberOfEmployees = 1000)
+            new Account(Id = '001000000000001', Name = 'acc1', NumberOfEmployees = 1000, AccountNumber = '123'),
+            new Account(Id = '001000000000002', Name = 'acc2', NumberOfEmployees = 1000, AccountNumber = '456')
         };
         collectionMap = new Map<Id, Account>(collectionList);
         collectionUnderTest = sfcraft_Collection.fromList(collectionList);
@@ -51,9 +51,33 @@ private with sharing class sfcraft_Test_Collection {
     }
 
     @IsTest
-    private static void calculatesSize() {
+    private static void canCreateCollectionFromOfGenericType() {
+        List<SObject> genericTypeList = new List<SObject>();
+        genericTypeList.addAll(collectionList);
+        collectionUnderTest = sfcraft_Collection.fromList(genericTypeList);
+        List<SObject> actualList = collectionUnderTest.getList();
+        System.assertEquals(genericTypeList, actualList, 'Generated list is different from expected');
+    }
+
+    @IsTest
+    private static void canCreateCollectionFromMap() {
+        collectionUnderTest = sfcraft_Collection.fromMap(collectionMap);
+        Map<Id, Account> actualMap = (Map<Id, Account>) collectionUnderTest.getMap();
+        System.assertEquals(collectionMap, actualMap, 'Generated list is different from expected');
+    }
+
+    @IsTest
+    private static void canCreateCollectionFromListToMap() {
         collectionUnderTest = sfcraft_Collection.fromList(collectionList);
-        System.assertEquals(collectionList.size(), collectionUnderTest.size(), 'Size is different from expected');
+        Map<Id, Account> actualMap = (Map<Id, Account>) collectionUnderTest.getMap();
+        System.assertEquals(collectionMap, actualMap, 'Generated list is different from expected');
+    }
+
+    @IsTest
+    private static void canCreateCollectionFromMapToList() {
+        collectionUnderTest = sfcraft_Collection.fromMap(new Map<Id, Account>(collectionList));
+        List<Account> actualMap = (List<Account>) collectionUnderTest.getList();
+        System.assertEquals(collectionList, actualMap, 'Generated list is different from expected');
     }
 
     @IsTest
@@ -77,6 +101,11 @@ private with sharing class sfcraft_Test_Collection {
     }
 
     @IsTest
+    private static void calculatesSize() {
+        System.assertEquals(collectionList.size(), collectionUnderTest.size(), 'Size is different from expected');
+    }
+
+    @IsTest
     private static void canCountUnique() {
         collectionList.add(collectionList[0]);
         collectionUnderTest = sfcraft_Collection.fromList(collectionList);
@@ -85,27 +114,6 @@ private with sharing class sfcraft_Test_Collection {
             collectionUnderTest.countUnique(),
             'Unique count is different from expected'
         );
-    }
-
-    @IsTest
-    private static void canCreateCollectionFromMap() {
-        collectionUnderTest = sfcraft_Collection.fromMap(collectionMap);
-        Map<Id, Account> actualMap = (Map<Id, Account>) collectionUnderTest.getMap();
-        System.assertEquals(collectionMap, actualMap, 'Generated list is different from expected');
-    }
-
-    @IsTest
-    private static void canCreateCollectionFromListToMap() {
-        collectionUnderTest = sfcraft_Collection.fromList(collectionList);
-        Map<Id, Account> actualMap = (Map<Id, Account>) collectionUnderTest.getMap();
-        System.assertEquals(collectionMap, actualMap, 'Generated list is different from expected');
-    }
-
-    @IsTest
-    private static void canCreateCollectionFromMapToList() {
-        collectionUnderTest = sfcraft_Collection.fromMap(new Map<Id, Account>(collectionList));
-        List<Account> actualMap = (List<Account>) collectionUnderTest.getList();
-        System.assertEquals(collectionList, actualMap, 'Generated list is different from expected');
     }
 
     @IsTest
@@ -142,6 +150,51 @@ private with sharing class sfcraft_Test_Collection {
         );
         System.assertEquals(1, mappedByNumber.size(), 'Result size is different from expected');
         System.assertEquals(collectionList, mappedByNumber.get(1000), 'Wrong mapping for numbers');
+    }
+
+    @IsTest
+    private static void canReturnSetOfFieldValuesByFieldName() {
+        List<String> expectedList = new List<String>{ collectionList.get(0).Name, collectionList.get(1).Name };
+        List<String> actualList = (List<String>) collectionUnderTest.getFieldValues('Name');
+        System.assertEquals(expectedList, actualList, 'Wrong mapping for numbers');
+    }
+
+    @IsTest
+    private static void canReturnSetOfFieldValues() {
+        List<String> expectedList = new List<String>{ collectionList.get(0).Name, collectionList.get(1).Name };
+        List<String> actualList = (List<String>) collectionUnderTest.getFieldValues(Account.Name);
+        System.assertEquals(expectedList, actualList, 'Wrong mapping for numbers');
+    }
+
+    @IsTest
+    private static void canReturnSetOfFieldValuesForCollectionFromGenericList() {
+        List<Object> expectedList = new List<String>{
+            collectionList.get(0).AccountNumber,
+            collectionList.get(1).AccountNumber
+        };
+        List<SObject> genericTypeList = new List<SObject>();
+        genericTypeList.addAll(collectionList);
+        collectionUnderTest = sfcraft_Collection.fromList(genericTypeList);
+        List<Object> actualList = (List<Object>) collectionUnderTest.getFieldValues('AccountNumber');
+        System.assertEquals(expectedList, actualList, 'Wrong mapping for numbers');
+    }
+
+    @IsTest
+    private static void getFieldValuesMethodsThrowIllegalArgumentException() {
+        String fieldName = null;
+        SObjectField field = null;
+        try {
+            collectionUnderTest.getFieldValues(fieldName);
+            expectException(IllegalArgumentException.class);
+        } catch (IllegalArgumentException ex) {
+            expectException('Field is required to gather values', ex);
+        }
+        try {
+            collectionUnderTest.getFieldValues(field);
+            expectException(IllegalArgumentException.class);
+        } catch (IllegalArgumentException ex) {
+            expectException('Field is required to gather values', ex);
+        }
     }
 
     @IsTest
