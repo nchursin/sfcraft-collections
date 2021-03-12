@@ -6,7 +6,7 @@ private with sharing class sfcraft_Test_Collection {
     // DONE: Map by field (sobjectField)
     // DONE: Map by field unique (sobjectField)
     // DONE: Map by field unique (null) - illegal argument exception
-    // TODO: Total size
+    // DONE: Total size
     // TODO: Count unique
     // TODO: From set
     // DONE: from list
@@ -31,13 +31,15 @@ private with sharing class sfcraft_Test_Collection {
     // TODO: getSobjectType
     // TODO: removeAll
 
-    private static List<Account> collectionList = new List<Account>{
-        new Account(Id = '001000000000001', Name = 'acc1', NumberOfEmployees = 1000),
-        new Account(Id = '001000000000002', Name = 'acc2', NumberOfEmployees = 1000)
-    };
-    private static Map<Id, Account> collectionMap = new Map<Id, Account>(collectionList);
+    private static List<Account> collectionList;
+    private static Map<Id, Account> collectionMap;
 
     static {
+        collectionList = new List<Account>{
+            new Account(Id = '001000000000001', Name = 'acc1', NumberOfEmployees = 1000),
+            new Account(Id = '001000000000002', Name = 'acc2', NumberOfEmployees = 1000)
+        };
+        collectionMap = new Map<Id, Account>(collectionList);
         collectionUnderTest = sfcraft_Collection.fromList(collectionList);
     }
 
@@ -52,6 +54,17 @@ private with sharing class sfcraft_Test_Collection {
     private static void calculatesSize() {
         collectionUnderTest = sfcraft_Collection.fromList(collectionList);
         System.assertEquals(collectionList.size(), collectionUnderTest.size(), 'Size is different from expected');
+    }
+
+    @IsTest
+    private static void canCountUnique() {
+        collectionUnderTest = sfcraft_Collection.fromList(collectionList);
+        collectionList.add(collectionList[0]);
+        System.assertEquals(
+            collectionList.size() - 1,
+            collectionUnderTest.countUnique(),
+            'Unique count is different from expected'
+        );
     }
 
     @IsTest
